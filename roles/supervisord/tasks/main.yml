@@ -1,0 +1,27 @@
+---
+- name: install supervisord dependencies
+  apt: name=python-meld3 state=latest update_cache=yes
+
+- name: install pip
+  easy_install: name=pip state=latest
+
+- name: install supervisord
+  pip: name=supervisor state=present
+
+- name: create necessary directories
+  file: dest=/var/log/supervisord state=directory owner=root group=root mode=0755
+
+- name: create supervisord include directory
+  file: dest=/etc/supervisord.d state=directory owner=root group=root mode=0755
+
+- name: install supervisord init script
+  copy: src=supervisord-init dest=/etc/init.d/supervisord owner=root group=root mode=0700
+
+- name: install supervisord config file
+  copy: src=supervisord.conf dest=/etc/supervisord.conf owner=root group=root mode=0600
+
+- name: start supervisord
+  service: name=supervisord state=started enabled=yes
+
+- name: install supervisord init script
+  copy: src=supervisord-init dest=/etc/init.d/supervisord owner=root group=root mode=0700
