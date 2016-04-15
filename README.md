@@ -9,7 +9,7 @@ By [Gerardo Garcia Mendez](https://twitter.com/Geraz69).
 
 ## Prerequirements
 
-To run this in your machine you need to have Vurtualbox and Vagrant installed. For Mac OSX you can do it with the next commands:
+To run this in your machine you need to have Virtualbox and Vagrant installed. For Mac OSX you can do it with the next commands:
 
 ```bash
 $ brew cask install virtualbox
@@ -35,7 +35,7 @@ After that is just a matter of telling Vagrant to create the instance and provis
 $ vagrant up
 ```
 
-After that command is finished you can go and check that everithing is working by going to (http://127.0.0.1:1234) on a web browser. You should see a "Hello World".
+As soon as the command is finished you can go and check that everything is working, you can go and hit http://127.0.0.1:1234 on a web browser. "Hello World".
 
 ## Port Forwarding
 
