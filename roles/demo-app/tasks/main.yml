@@ -2,8 +2,10 @@
 - name: ensure Java is installed
   apt: name=openjdk-7-jre state=present
 
+- user: name=demo-app
+
 - name: Ensure the necessary folders exist
-  file: dest={{ item }} state=directory
+  file: dest={{ item }} state=directory owner=demo-app
   with_items:
     - /opt/demo-app
     - /var/log/demo-app
@@ -12,6 +14,7 @@
   get_url:
     url: https://s3-ap-southeast-2.amazonaws.com/covata-robertbartlett-content-objectdata/spring-boot-sample-jetty-1.0.0.RC5.jar
     dest: /opt/demo-app/demo-app.jar
+    owner: demo-app
 
 - name: install supervisord configuration
   copy: src=supervisord.conf dest=/etc/supervisord.d/demo-app.conf owner=root group=root mode=0644
@@ -21,17 +24,23 @@
   command: supervisorctl update
   when: supervisordConf|changed
 
+- name: create self-signed SSL cert
+  shell: |
+    openssl req -new -nodes -x509 -subj "/C=US/ST=California/CN=localhost" -days 3650 \
+    -keyout /etc/ssl/demo-app.key -out /etc/ssl/demo-app.crt \
+    -extensions v3_ca creates=/etc/ssl/demo-app.crt
+  register: nginxCert
+
 - name: copy reader site configuration
   copy: src=nginx.conf dest=/etc/nginx/conf.d/demo-app.conf owner=root group=root mode=0644
   register: nginxConf
 
 - name: reload nginx
   service: name=nginx state=reloaded
-  when: nginxConf|changed
+  when: nginxConf|changed or nginxCert|changed
 
 - name: Allow nginx firewall
   ufw: proto=tcp port=80 rule=allow
 
-# Uncomment in case we later use ssl certificates
-# - name: Allow nginx ssl firewall
-#   ufw: proto=tcp port=443 rule=allow
+- name: Allow nginx ssl firewall
+  ufw: proto=tcp port=443 rule=allow
